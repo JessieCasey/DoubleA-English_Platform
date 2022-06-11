@@ -1,11 +1,12 @@
-package com.doubleA.platform.domain;
+package com.doubleA.platform.domains;
 
-import com.doubleA.platform.domain.lesson.Lesson;
+import com.doubleA.platform.domains.lesson.Lesson;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -36,7 +37,7 @@ public class Student {
     @OneToOne(mappedBy = "student")
     private Tuition tuition;
 
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @JoinColumn(name = "club_id")
     private Club club;
 
@@ -45,6 +46,12 @@ public class Student {
 
     @OneToOne(mappedBy = "classMonitor")
     private Club headOfClub;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "student_roles",
+            joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles;
 
     public Student() {
     }

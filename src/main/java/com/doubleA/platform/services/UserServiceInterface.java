@@ -8,4 +8,8 @@ public interface UserServiceInterface {
     void pay();
 
     void refund();
+
+    void attendLesson();
+
+    void quitLesson();
 }

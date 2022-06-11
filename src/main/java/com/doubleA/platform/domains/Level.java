@@ -1,4 +1,4 @@
-package com.doubleA.platform.domain;
+package com.doubleA.platform.domains;
 
 public enum Level {
     A1,

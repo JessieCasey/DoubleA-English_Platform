@@ -1,8 +1,8 @@
-package com.doubleA.platform.domain.lesson;
+package com.doubleA.platform.domains.lesson;
 
-import com.doubleA.platform.domain.Level;
-import com.doubleA.platform.domain.Student;
-import com.doubleA.platform.domain.Teacher;
+import com.doubleA.platform.domains.Level;
+import com.doubleA.platform.domains.Student;
+import com.doubleA.platform.domains.Teacher;
 import lombok.Getter;
 import lombok.Setter;
 
