@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +31,7 @@ public class Lesson {
     @Column(name = "date")
     private Date time;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Level level;
 
     @ManyToOne(optional = false)

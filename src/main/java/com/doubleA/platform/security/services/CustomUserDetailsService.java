@@ -32,7 +32,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
-            Student student = studentRepository.findByEmail(email).get();
+            Student student = studentRepository.findByEmail(email).orElseThrow(() ->
+                    new UsernameNotFoundException("User not found with email:" + email));
             return new User(student.getEmail(), student.getPassword(), mapRolesToAuthorities(student.getRoles()));
         } catch (UsernameNotFoundException e) {
             Teacher teacher = teacherRepository.findByEmail(email).orElseThrow(() ->
@@ -44,4 +45,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
+
+    public Pair loadStudentOrTeacher(String email) throws UsernameNotFoundException {
+        try {
+            return new Pair(studentRepository.findByEmail(email).orElseThrow(() ->
+                    new UsernameNotFoundException("User not found with email:" + email)), null);
+        } catch (UsernameNotFoundException e) {
+            return new Pair(null, teacherRepository.findByEmail(email).orElseThrow(() ->
+                    new UsernameNotFoundException("User not found with email:" + email)));
+        }
+    }
+
+    public record Pair<Student, Teacher>(Student student, Teacher teacher) {
+    }
+
 }
