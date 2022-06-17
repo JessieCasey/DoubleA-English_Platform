@@ -1,24 +1,25 @@
 package com.doubleA.platform.controllers;
 
 
+import com.doubleA.platform.domains.Role;
 import com.doubleA.platform.domains.Student;
 import com.doubleA.platform.payloads.LoginDTO;
 import com.doubleA.platform.payloads.SignUpDTO;
 import com.doubleA.platform.repositories.RoleRepository;
 import com.doubleA.platform.repositories.StudentRepository;
+import com.doubleA.platform.repositories.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @RestController
@@ -27,6 +28,9 @@ public class AuthenticationController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private TeacherRepository teacherRepository;
 
     @Autowired
     private StudentRepository studentRepository;
@@ -65,12 +69,54 @@ public class AuthenticationController {
         student.setEmail(signUpDto.getEmail());
         student.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
 
-        //Role roles = roleRepository.findByName("ROLE_ADMIN").get();
+        //Role roles = roleRepository.findByName(role).get();
         //student.setRoles(Collections.singleton(roles));
 
         studentRepository.save(student);
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
-
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/studentsList")
+    public ResponseEntity<?> getAllStudents(){
+        try {
+            return ResponseEntity.ok(studentRepository.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Students aren't available");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/teachersList")
+    public ResponseEntity<?> getAllTeachers(){
+        try {
+            return ResponseEntity.ok(teacherRepository.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Teachers aren't available");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/teacher/{id}")
+    public ResponseEntity<?> deleteTeacherById(@PathVariable UUID id){
+        try {
+            teacherRepository.deleteById(id);
+            return ResponseEntity.ok("Teacher was deleted");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Teachers is unavailable");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/student/{id}")
+    public ResponseEntity<?> deleteStudentById(@PathVariable UUID id){
+        try {
+            studentRepository.deleteById(id);
+            return ResponseEntity.ok("Student was deleted");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Student is unavailable");
+        }
+    }
+
 }

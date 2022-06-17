@@ -1,6 +1,7 @@
 package com.doubleA.platform.domains;
 
 import com.doubleA.platform.domains.lesson.Lesson;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,9 +26,11 @@ public class Student {
     @Column(name = "last_name")
     private String lastname;
 
+    @JsonIgnore
     @Column(name = "email")
     private String email;
 
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
@@ -47,6 +50,7 @@ public class Student {
     @OneToOne(mappedBy = "classMonitor")
     private Club headOfClub;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "student_roles",
             joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),

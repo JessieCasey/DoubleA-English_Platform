@@ -4,9 +4,12 @@ import com.doubleA.platform.domains.Level;
 import com.doubleA.platform.domains.Teacher;
 import com.doubleA.platform.domains.lesson.Lesson;
 import com.doubleA.platform.domains.lesson.Type;
+import com.doubleA.platform.exceptions.LessonNotFoundException;
 import com.doubleA.platform.payloads.LessonDTO;
 import com.doubleA.platform.repositories.LessonRepository;
 import com.doubleA.platform.repositories.TeacherRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -26,7 +29,12 @@ public class LessonServiceImp {
         this.teacherRepository = teacherRepository;
     }
 
-    public void addLesson(LessonDTO lessonDTO, Teacher teacher) throws ParseException {
+    public ResponseEntity addLesson(LessonDTO lessonDTO, Teacher teacher) throws ParseException {
+        String title = lessonDTO.getTitle();
+        if (lessonRepository.existsByTitleAndCreator(title, teacher)) {
+            return new ResponseEntity<>("Lesson with title [" + title + "] is already exists", HttpStatus.BAD_REQUEST);
+        }
+
         Date date = new SimpleDateFormat("dd/MM/yyyy").parse(lessonDTO.getTime()); // 31/12/1998
         Level level = Level.valueOf(lessonDTO.getLevel()); // string to level
         Type type = Type.valueOf(lessonDTO.getType()); // string to type
@@ -43,5 +51,29 @@ public class LessonServiceImp {
         lesson.setCreator(teacher);
 
         lessonRepository.save(lesson);
+
+        return new ResponseEntity<>("Lesson with title [" + title + "] is already added", HttpStatus.OK);
+    }
+
+    public Iterable<Lesson> getAllLessonsByTeacher(UUID teacherId) throws LessonNotFoundException {
+        Iterable<Lesson> lessons = null;
+        if (!teacherRepository.findById(teacherId).isPresent()) {
+            throw new LessonNotFoundException("The teacher doesn't have any advertisements");
+        } else {
+            lessons = lessonRepository.findAllByCreator(teacherRepository.findById(teacherId).get());
+            if (lessons != null) {
+                return lessons;
+            } else {
+                throw new LessonNotFoundException("The teacher doesn't have any advertisements");
+            }
+        }
+    }
+
+    public Iterable<Lesson> getAllLessons() {
+        return lessonRepository.findAll();
+    }
+
+    public void deleteLessonById(UUID lessonId) {
+        lessonRepository.deleteById(lessonId);
     }
 }

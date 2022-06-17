@@ -1,6 +1,7 @@
 package com.doubleA.platform.domains;
 
 import com.doubleA.platform.domains.lesson.Lesson;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,12 +26,15 @@ public class Teacher {
     @Column(name = "last_name")
     private String lastname;
 
+    @JsonIgnore
     @Column(name = "email")
     private String email;
 
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
     private List<Lesson> lessonsCreated;
 
