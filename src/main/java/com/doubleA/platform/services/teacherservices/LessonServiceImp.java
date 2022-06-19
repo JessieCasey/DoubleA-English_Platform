@@ -1,12 +1,14 @@
 package com.doubleA.platform.services.teacherservices;
 
 import com.doubleA.platform.domains.Level;
+import com.doubleA.platform.domains.Student;
 import com.doubleA.platform.domains.Teacher;
 import com.doubleA.platform.domains.lesson.Lesson;
 import com.doubleA.platform.domains.lesson.Type;
 import com.doubleA.platform.exceptions.LessonNotFoundException;
 import com.doubleA.platform.payloads.LessonDTO;
 import com.doubleA.platform.repositories.LessonRepository;
+import com.doubleA.platform.repositories.StudentRepository;
 import com.doubleA.platform.repositories.TeacherRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,11 +25,14 @@ public class LessonServiceImp {
 
     private final LessonRepository lessonRepository;
 
+    private final StudentRepository studentRepository;
+
     private final TeacherRepository teacherRepository;
 
-    public LessonServiceImp(LessonRepository lessonRepository, TeacherRepository teacherRepository) {
+    public LessonServiceImp(LessonRepository lessonRepository, TeacherRepository teacherRepository, StudentRepository studentRepository) {
         this.lessonRepository = lessonRepository;
         this.teacherRepository = teacherRepository;
+        this.studentRepository = studentRepository;
     }
 
     public ResponseEntity addLesson(LessonDTO lessonDTO, Teacher teacher) throws ParseException {
@@ -75,5 +81,36 @@ public class LessonServiceImp {
 
     public void deleteLessonById(UUID lessonId) {
         lessonRepository.deleteById(lessonId);
+    }
+
+    public ResponseEntity<String> enrollStudentToLesson(Student student, UUID lessonId) {
+        Optional<Lesson> lesson = lessonRepository.findById(lessonId);
+        if (lesson.isPresent()) {
+            student.getLessons().add(lesson.get());
+            lesson.get().getStudents().add(student);
+
+            lessonRepository.save(lesson.get());
+            studentRepository.save(student);
+
+            return new ResponseEntity<>("Student " + student.getFirstname() + " Enrolled to " + lesson.get().getTitle(), HttpStatus.OK);
+        } else {
+            return ResponseEntity.badRequest().body("Error");
+        }
+    }
+
+    public ResponseEntity<String> leaveLesson(Student student, UUID lessonId) {
+        Optional<Lesson> lesson = lessonRepository.findById(lessonId);
+        if (lesson.isPresent() && student.getLessons().contains(lesson.get())) {
+
+            lesson.get().getStudents().remove(student);
+            student.getLessons().remove(lesson.get());
+
+            lessonRepository.save(lesson.get());
+            studentRepository.save(student);
+
+            return new ResponseEntity<>("Student " + student.getFirstname() + " left the " + lesson.get().getTitle(), HttpStatus.OK);
+        } else {
+            return ResponseEntity.badRequest().body("Error");
+        }
     }
 }

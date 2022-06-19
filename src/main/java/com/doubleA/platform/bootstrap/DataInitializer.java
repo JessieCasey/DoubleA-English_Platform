@@ -3,7 +3,6 @@ package com.doubleA.platform.bootstrap;
 import com.doubleA.platform.domains.Role;
 import com.doubleA.platform.domains.Student;
 import com.doubleA.platform.domains.Teacher;
-import com.doubleA.platform.domains.lesson.Lesson;
 import com.doubleA.platform.payloads.LessonDTO;
 import com.doubleA.platform.repositories.LessonRepository;
 import com.doubleA.platform.repositories.RoleRepository;
@@ -47,11 +46,10 @@ public class DataInitializer implements CommandLineRunner {
         deleteAllRepositories();
 
         adminInit();
-        studentInit();
+        Student student = studentInit();
         Teacher teacher = teacherInit();
 
         lessonInit(teacher);
-
     }
 
     public void deleteAllRepositories() {
@@ -71,9 +69,10 @@ public class DataInitializer implements CommandLineRunner {
         lessonDTO.setType("VOCABULARY");
 
         lessonService.addLesson(lessonDTO, teacher);
+
     }
 
-    public void studentInit() {
+    public Student studentInit() {
         // create role
         Role role = new Role();
         role.setName("STUDENT");
@@ -94,6 +93,8 @@ public class DataInitializer implements CommandLineRunner {
         student.setRoles(Collections.singleton(roles));
 
         studentRepository.save(student);
+
+        return student;
     }
 
     public Teacher teacherInit() {

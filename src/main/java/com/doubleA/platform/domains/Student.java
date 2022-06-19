@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "student")
@@ -49,6 +47,11 @@ public class Student {
 
     @OneToOne(mappedBy = "classMonitor")
     private Club headOfClub;
+
+    @ElementCollection
+    @CollectionTable(name="scores",
+            joinColumns=@JoinColumn(name="score_id"))
+    private Map<Lesson, Integer> scoresMap = new HashMap<>();
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

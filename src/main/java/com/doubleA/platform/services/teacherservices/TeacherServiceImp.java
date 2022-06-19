@@ -11,7 +11,6 @@ import java.util.UUID;
 @Service
 public class TeacherServiceImp {
 
-
     private final LessonRepository lessonRepository;
 
     private final TeacherRepository teacherRepository;

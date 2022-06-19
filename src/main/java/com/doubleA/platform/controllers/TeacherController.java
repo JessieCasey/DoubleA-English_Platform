@@ -1,7 +1,6 @@
 package com.doubleA.platform.controllers;
 
 import com.doubleA.platform.domains.Teacher;
-import com.doubleA.platform.domains.lesson.Lesson;
 import com.doubleA.platform.security.services.CustomUserDetailsService;
 import com.doubleA.platform.services.teacherservices.LessonServiceImp;
 import org.springframework.http.ResponseEntity;

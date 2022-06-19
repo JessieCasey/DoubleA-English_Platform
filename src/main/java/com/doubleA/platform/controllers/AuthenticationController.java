@@ -1,14 +1,11 @@
 package com.doubleA.platform.controllers;
 
-
-import com.doubleA.platform.domains.Role;
 import com.doubleA.platform.domains.Student;
 import com.doubleA.platform.payloads.LoginDTO;
 import com.doubleA.platform.payloads.SignUpDTO;
 import com.doubleA.platform.repositories.RoleRepository;
 import com.doubleA.platform.repositories.StudentRepository;
 import com.doubleA.platform.repositories.TeacherRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,27 +16,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private TeacherRepository teacherRepository;
+    private final TeacherRepository teacherRepository;
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthenticationController(AuthenticationManager authenticationManager, TeacherRepository teacherRepository, StudentRepository studentRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.authenticationManager = authenticationManager;
+        this.teacherRepository = teacherRepository;
+        this.studentRepository = studentRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO) {
@@ -51,10 +50,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignUpDTO signUpDto){
+    public ResponseEntity<?> registerUser(@RequestBody SignUpDTO signUpDto) {
 
         // add check for email exists in a DB
-        if(studentRepository.existsByEmail(signUpDto.getEmail())){
+        if (studentRepository.existsByEmail(signUpDto.getEmail())) {
             return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
         }
 
@@ -79,7 +78,7 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/studentsList")
-    public ResponseEntity<?> getAllStudents(){
+    public ResponseEntity<?> getAllStudents() {
         try {
             return ResponseEntity.ok(studentRepository.findAll());
         } catch (Exception e) {
@@ -89,7 +88,7 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/teachersList")
-    public ResponseEntity<?> getAllTeachers(){
+    public ResponseEntity<?> getAllTeachers() {
         try {
             return ResponseEntity.ok(teacherRepository.findAll());
         } catch (Exception e) {
@@ -99,7 +98,7 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/teacher/{id}")
-    public ResponseEntity<?> deleteTeacherById(@PathVariable UUID id){
+    public ResponseEntity<?> deleteTeacherById(@PathVariable UUID id) {
         try {
             teacherRepository.deleteById(id);
             return ResponseEntity.ok("Teacher was deleted");
@@ -110,7 +109,7 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/student/{id}")
-    public ResponseEntity<?> deleteStudentById(@PathVariable UUID id){
+    public ResponseEntity<?> deleteStudentById(@PathVariable UUID id) {
         try {
             studentRepository.deleteById(id);
             return ResponseEntity.ok("Student was deleted");
